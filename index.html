@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <title>Хоккейный Код Магнитогорска | Журнал</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.css" />
+
+    <style>
+        :root {
+            --bg-color: #080b12;
+            --text-main: #ffffff;
+            --text-muted: #8b95a8;
+            --accent-red: #d32f2f;
+            --font-display: 'Oswald', sans-serif;
+            --sidebar-w: 240px;
+            --toolbar-h: 72px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            height: 100%;
+            height: 100dvh;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            font-family: 'Roboto', sans-serif;
+            overflow: hidden;
+            touch-action: pan-y;
+        }
+
+        body {
+            display: flex;
+            background-image:
+                url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.04'/%3E%3C/svg%3E"),
+                linear-gradient(135deg, #0d121c 0%, #05070a 100%);
+        }
+
+        .sidebar {
+            width: var(--sidebar-w);
+            flex-shrink: 0;
+            background: #030406;
+            padding: 2rem 1.5rem;
+            height: 100%;
+            border-right: 1px solid rgba(255,255,255,0.05);
+            z-index: 20;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.5);
+        }
+
+        .sidebar-logo {
+            font-family: var(--font-display);
+            font-size: 1.4rem;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-left: 4px solid var(--accent-red);
+            padding-left: 12px;
+            line-height: 1.2;
+        }
+
+        .nav-links {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            flex-grow: 1;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            text-transform: uppercase;
+            font-family: var(--font-display);
+            font-size: 0.95rem;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: color 0.2s, padding-left 0.2s;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--accent-red);
+            padding-left: 4px;
+        }
+
+        .sidebar-footer {
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            line-height: 1.5;
+        }
+
+        .app {
+            flex: 1;
+            min-width: 0;
+            min-height: 0;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            position: relative;
+        }
+
+        .mobile-bar {
+            display: none;
+            height: 56px;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 14px;
+            background: #030406;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            z-index: 30;
+        }
+
+        .mobile-bar .title {
+            font-family: var(--font-display);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 1rem;
+        }
+
+        .icon-btn {
+            width: 42px;
+            height: 42px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.04);
+            color: #fff;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.2rem;
+        }
+
+        #progress-bar-container {
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            flex-shrink: 0;
+        }
+
+        #progress-bar {
+            height: 100%;
+            width: 0%;
+            background: var(--accent-red);
+            transition: width 0.35s ease-out;
+            box-shadow: 0 0 10px var(--accent-red);
+        }
+
+        .stage {
+            flex: 1;
+            min-height: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 16px;
+            position: relative;
+        }
+
+        .book-frame {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            max-width: 100%;
+            max-height: 100%;
+            min-height: 0;
+        }
+
+        #magazine {
+            flex: 0 0 auto;
+            touch-action: none;
+            user-select: none;
+            box-shadow: 0 18px 50px rgba(0,0,0,0.55);
+        }
+
+        /* ИСПРАВЛЕНИЕ 1: Удален ломающий стили блок !important от Cursor */
+
+        .page {
+            background-color: #05070a;
+            overflow: hidden;
+        }
+
+        .page img,
+        #magazine img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            pointer-events: none;
+            user-select: none;
+            background: #05070a;
+        }
+
+        .toolbar {
+            flex-shrink: 0;
+            height: var(--toolbar-h);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 0 16px 12px;
+        }
+
+        .nav-btn,
+        .zoom-btn {
+            background: rgba(13, 18, 28, 0.9);
+            color: var(--text-muted);
+            border: 1px solid rgba(255,255,255,0.12);
+            cursor: pointer;
+            font-family: var(--font-display);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.2s;
+        }
+
+        .nav-btn {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .nav-btn.side {
+            position: static;
+            transform: none;
+            flex-shrink: 0;
+        }
+
+        .zoom-btn {
+            padding: 10px 20px;
+            border-radius: 28px;
+            color: #fff;
+        }
+
+        .page-indicator {
+            min-width: 72px;
+            text-align: center;
+            font-family: var(--font-display);
+            color: var(--text-muted);
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+        }
+
+        .nav-btn:hover,
+        .zoom-btn:hover,
+        .icon-btn:hover {
+            background: var(--accent-red);
+            color: #fff;
+            border-color: var(--accent-red);
+        }
+
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.72);
+            z-index: 80;
+        }
+
+        .mobile-menu.open { display: block; }
+
+        .mobile-menu-panel {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #030406;
+            padding: 20px 20px 28px;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+
+        .mobile-menu-panel .nav-links {
+            margin-top: 12px;
+        }
+
+        #pages-source { display: none; }
+
+        @media (max-width: 900px) {
+            .sidebar { display: none; }
+            .mobile-bar { display: flex; }
+            .stage { padding: 8px 8px 0; }
+            .nav-btn.side { display: none; }
+            .book-frame { width: 100%; height: 100%; }
+            .toolbar {
+                height: auto;
+                padding: 10px 12px calc(12px + env(safe-area-inset-bottom));
+            }
+            .nav-btn { width: 46px; height: 46px; }
+        }
+    </style>
+</head>
+<body>
+    <nav class="sidebar">
+        <div class="sidebar-logo">МЕТАЛЛУРГ<br>КОД</div>
+        <ul class="nav-links" id="nav-desktop"></ul>
+        <div class="sidebar-footer">Исследование / 2026<br>Листайте кнопками, свайпом<br>или кликом по странице</div>
+    </nav>
+
+    <div class="app">
+        <header class="mobile-bar">
+            <div class="title">Металлург код</div>
+            <button class="icon-btn" id="btn-menu" type="button" aria-label="Меню">☰</button>
+        </header>
+
+        <div id="progress-bar-container">
+            <div id="progress-bar"></div>
+        </div>
+
+        <div class="stage" id="magazine-stage">
+            <div class="book-frame">
+                <button id="btn-prev" class="nav-btn side" type="button" aria-label="Назад">❮</button>
+                <div id="magazine"></div>
+                <button id="btn-next" class="nav-btn side" type="button" aria-label="Вперёд">❯</button>
+            </div>
+        </div>
+
+        <div class="toolbar">
+            <button id="btn-prev-m" class="nav-btn" type="button" aria-label="Назад">❮</button>
+            <span class="page-indicator" id="page-indicator">1 / 12</span>
+            <button id="btn-zoom" class="zoom-btn" type="button">🔍 Приблизить</button>
+            <button id="btn-next-m" class="nav-btn" type="button" aria-label="Вперёд">❯</button>
+        </div>
+    </div>
+
+    <div class="mobile-menu" id="mobile-menu">
+        <div class="mobile-menu-panel">
+            <div class="sidebar-logo">МЕТАЛЛУРГ КОД</div>
+            <ul class="nav-links" id="nav-mobile"></ul>
+        </div>
+    </div>
+
+    <!-- ИСПРАВЛЕНИЕ 2: data-density="hard" для правильного перелистывания обложек -->
+    <div id="pages-source">
+        <div class="page --cover" data-density="hard"><img src="image_5ba062.jpg" alt="Обложка"></div>
+        <div class="page"><img src="image_5ba066.jpg" alt="Философия"></div>
+        <div class="page"><img src="image_5ba07f.jpg" alt="Легенды"></div>
+        <div class="page"><img src="image_5ba0c6.jpg" alt="Семья"></div>
+        <div class="page"><img src="image_5ba083.jpg" alt="Единство"></div>
+        <div class="page"><img src="image_5ba086.jpg" alt="Карта"></div>
+        <div class="page"><img src="image_5ba09f.jpg" alt="Пространства"></div>
+        <div class="page"><img src="image_5ba0a3.jpg" alt="Словарь"></div>
+        <div class="page"><img src="image_5ba0c2.jpg" alt="Мерч"></div>
+        <div class="page"><img src="image_5ba0df.jpg" alt="Голоса"></div>
+        <div class="page"><img src="image_5ba7ea.jpg" alt="Ромазан"></div>
+        <div class="page --cover" data-density="hard"><img src="image_5ba7e6.jpg" alt="Конец"></div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0/dist/fancybox/fancybox.umd.js"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Соотношение сторон страниц (Ширина / Высота)
+            const PAGE_RATIO = 897 / 1280; 
+            const SECTIONS = [
+                { page: 0, title: 'Обложка' },
+                { page: 1, title: 'Введение' },
+                { page: 2, title: 'История и люди' },
+                { page: 5, title: 'Городская среда' },
+                { page: 7, title: 'Культура фанатов' },
+                { page: 10, title: 'Стальной характер' }
+            ];
+
+            const stage = document.getElementById('magazine-stage');
+            const magazineEl = document.getElementById('magazine');
+            const sourceEl = document.getElementById('pages-source');
+            const progressBar = document.getElementById('progress-bar');
+            const indicator = document.getElementById('page-indicator');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            const navDesktop = document.getElementById('nav-desktop');
+            const navMobile = document.getElementById('nav-mobile');
+
+            SECTIONS.forEach((item) => {
+                [navDesktop, navMobile].forEach((list) => {
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.textContent = item.title;
+                    a.dataset.page = String(item.page);
+                    if (item.page === 0) a.classList.add('active');
+                    li.appendChild(a);
+                    list.appendChild(li);
+                });
+            });
+
+            const images = Array.from(sourceEl.querySelectorAll('img')).map((img) => ({
+                src: img.getAttribute('src'),
+                type: 'image'
+            }));
+
+            let pageFlip = null;
+            let currentPage = 0;
+            let totalPages = sourceEl.querySelectorAll('.page').length;
+            let resizeTimer = null;
+
+            function isNarrow() {
+                return window.matchMedia('(max-width: 900px)').matches;
+            }
+
+            // ИСПРАВЛЕНИЕ 3: Математика размеров экрана
+            function measure() {
+                const rect = stage.getBoundingClientRect();
+                const arrows = isNarrow() ? 0 : 120;
+                const availW = Math.max(120, rect.width - 16 - arrows);
+                const availH = Math.max(160, rect.height - 16);
+                
+                // На десктопе мы должны уместить ДВЕ страницы в ширину (разворот)
+                const maxPageW = isNarrow() ? availW : availW / 2;
+
+                let pageW = maxPageW;
+                let pageH = pageW / PAGE_RATIO;
+                
+                if (pageH > availH) {
+                    pageH = availH;
+                    pageW = pageH * PAGE_RATIO;
+                }
+                return {
+                    width: Math.max(140, Math.floor(pageW)),
+                    height: Math.max(200, Math.floor(pageH))
+                };
+            }
+
+            function updateUi(pageIndex) {
+                currentPage = pageIndex;
+                const last = Math.max(1, totalPages - 1);
+                progressBar.style.width = (pageIndex / last) * 100 + '%';
+                indicator.textContent = (pageIndex + 1) + ' / ' + totalPages;
+
+                document.querySelectorAll('.nav-links a').forEach((link) => link.classList.remove('active'));
+                let activePage = 0;
+                SECTIONS.forEach((item) => {
+                    if (pageIndex >= item.page) activePage = item.page;
+                });
+                document.querySelectorAll('.nav-links a[data-page="' + activePage + '"]').forEach((link) => {
+                    link.classList.add('active');
+                });
+            }
+
+            function mountPages() {
+                magazineEl.innerHTML = '';
+                sourceEl.querySelectorAll('.page').forEach((page) => {
+                    magazineEl.appendChild(page.cloneNode(true));
+                });
+            }
+
+            function createBook() {
+                const size = measure();
+
+                magazineEl.style.width = size.width + 'px';
+                magazineEl.style.height = size.height + 'px';
+
+                mountPages();
+
+                pageFlip = new St.PageFlip(magazineEl, {
+                    width: size.width,
+                    height: size.height,
+                    size: 'fixed',
+                    minWidth: size.width,
+                    maxWidth: size.width,
+                    minHeight: size.height,
+                    maxHeight: size.height,
+                    showCover: true,
+                    // ИСПРАВЛЕНИЕ 4: На телефоне 1 страница, на ПК - разворот (2 страницы)
+                    usePortrait: isNarrow(), 
+                    autoSize: false,
+                    maxShadowOpacity: 0.45,
+                    drawShadow: true,
+                    flippingTime: 650,
+                    useMouseEvents: true, // Встроенные свайпы и клики
+                    swipeDistance: 30, // Снизил дистанцию свайпа для удобства
+                    clickEventForward: true,
+                    disableFlipByClick: true,
+                    mobileScrollSupport: false,
+                    showPageCorners: false,
+                    startPage: currentPage
+                });
+
+                pageFlip.loadFromHTML(magazineEl.querySelectorAll('.page'));
+                totalPages = pageFlip.getPageCount();
+
+                pageFlip.on('flip', (e) => updateUi(e.data));
+                pageFlip.on('changeState', () => {
+                    try { updateUi(pageFlip.getCurrentPageIndex()); } catch (err) {}
+                });
+
+                updateUi(pageFlip.getCurrentPageIndex());
+            }
+
+            function rebuild() {
+                const keep = pageFlip ? pageFlip.getCurrentPageIndex() : currentPage;
+                currentPage = keep;
+                if (pageFlip) {
+                    try { pageFlip.destroy(); } catch (err) {}
+                    pageFlip = null;
+                }
+                createBook();
+            }
+
+            function go(delta) {
+                if (!pageFlip) return;
+                const from = pageFlip.getCurrentPageIndex();
+                const target = Math.min(totalPages - 1, Math.max(0, from + delta));
+                if (target === from) return;
+                try {
+                    if (delta > 0) pageFlip.flipNext();
+                    else pageFlip.flipPrev();
+                } catch (err) {}
+            }
+            
+            function flipNext() { go(1); }
+            function flipPrev() { go(-1); }
+
+            document.getElementById('btn-next').addEventListener('click', flipNext);
+            document.getElementById('btn-prev').addEventListener('click', flipPrev);
+            document.getElementById('btn-next-m').addEventListener('click', flipNext);
+            document.getElementById('btn-prev-m').addEventListener('click', flipPrev);
+
+            document.getElementById('btn-zoom').addEventListener('click', () => {
+                const index = pageFlip ? pageFlip.getCurrentPageIndex() : 0;
+                Fancybox.show(images, { startIndex: index });
+            });
+
+            document.querySelectorAll('.nav-links').forEach((list) => {
+                list.addEventListener('click', (e) => {
+                    const link = e.target.closest('a');
+                    if (!link) return;
+                    const page = parseInt(link.dataset.page, 10);
+                    if (pageFlip) pageFlip.turnToPage(page);
+                    mobileMenu.classList.remove('open');
+                });
+            });
+
+            document.getElementById('btn-menu').addEventListener('click', () => {
+                mobileMenu.classList.add('open');
+            });
+            mobileMenu.addEventListener('click', (e) => {
+                if (e.target === mobileMenu) mobileMenu.classList.remove('open');
+            });
+
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight') flipNext();
+                if (e.key === 'ArrowLeft') flipPrev();
+            });
+
+            /* ИСПРАВЛЕНИЕ 5: Полностью удален зависающий код ручных свайпов от ИИ Cursor */
+
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(rebuild, 180);
+            });
+            window.addEventListener('orientationchange', () => {
+                setTimeout(rebuild, 250);
+            });
+
+            const ready = () => requestAnimationFrame(() => requestAnimationFrame(createBook));
+            if (document.readyState === 'complete') ready();
+            else window.addEventListener('load', ready);
+        });
+    </script>
+</body>
+</html>
